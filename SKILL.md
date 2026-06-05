@@ -1,107 +1,98 @@
 ---
 name: readme-generation
-description: This skill should be used when creating, rewriting, auditing, or upgrading a repository README.md into a polished, developer-friendly, GitHub-ready project page with badges, quick start, architecture, usage, API docs, deployment, troubleshooting, security, and contribution sections.
+description: "Use this skill whenever the user wants to create, rewrite, improve, audit, or upgrade a README.md file. Trigger on: 'write a README', 'improve my README', 'fix the README', 'add a README', 'make the docs better', 'update the readme', 'my README is missing X', 'generate documentation for this repo', 'README looks bad', or any time the user shares a repo or codebase and asks for documentation help. This skill produces polished, developer-friendly, GitHub-ready README files with badges, quick start, architecture, usage, API docs, deployment, troubleshooting, security, and contribution sections. Always use this skill even for quick README requests — the quality bar matters."
 ---
 
 # README Generation Skill
 
-## Purpose
+Generate a high-quality `README.md` that helps a visitor understand what the project does, why it matters, how to run it, how to use it, how it works internally, and how to contribute.
 
-Generate a high-quality `README.md` that feels polished, useful, and repo-specific. The README should help a visitor understand what the project does, why it matters, how to run it, how to use it, how it works internally, and how to contribute.
+---
 
-Use this skill for:
+## Step 1: Determine Mode
 
-- Creating a new README from repository files.
-- Rewriting an existing README into a cleaner, more impressive version.
-- Adding missing sections such as installation, usage, API reference, deployment, screenshots, roadmap, security, troubleshooting, and license.
-- Making a README feel professional without becoming generic or bloated.
-- Producing README content for Claude Code, OpenCode, Codex, or any coding agent workflow.
+**Creating from scratch**: user has a repo but no README, or a stub.
+**Improving existing**: user has a README that needs polish, missing sections, or a full rewrite.
+**Compact mode**: user wants a minimal README (quick start focus only). Skip architecture, API, roadmap, and deployment unless clearly relevant.
 
-## Core Style
+When in doubt, ask: "Should this be a full README or a shorter quick-start focused one?"
 
-Write like a strong open-source maintainer:
+---
 
-- Clear, direct, confident.
-- Modern but not cringe.
-- Helpful before flashy.
-- Specific to the repository.
-- No fake claims.
-- No generic marketing filler.
-- No unsupported badges, metrics, screenshots, demos, sponsors, or integrations.
-- Avoid em dashes. Use commas, colons, or short sentences instead.
-- Prefer concise paragraphs and scannable tables.
-- Use emojis sparingly for section headers and navigation, not every sentence.
-- Keep code blocks copy-pasteable.
-- Keep headings stable and linkable.
+## Step 2: Discover the Repository
 
-## README Quality Bar
+Before writing, read the repo. Never invent facts.
 
-A strong README should answer these questions fast:
+### Files to read (in priority order)
 
-1. What is this project?
-2. Who is it for?
-3. What problem does it solve?
-4. Why should someone trust or try it?
-5. How do they install it?
-6. How do they run it locally?
-7. How do they configure it?
-8. How do they use it?
-9. What does the output look like?
-10. How is the project structured?
-11. How does the system work internally?
-12. How do they test, build, deploy, and troubleshoot it?
-13. How do they contribute?
-14. What license/security policy applies?
+| File | What to extract |
+| --- | --- |
+| `package.json` / `pyproject.toml` / `Cargo.toml` / `go.mod` | Project name, description, scripts, dependencies, version, engines |
+| `README.md` (existing) | Preserve accurate facts, tone, and any custom sections |
+| `.env.example` | All configuration variables, their names, and whether they have defaults |
+| `Dockerfile` / `docker-compose.yml` | Deployment model, service names, exposed ports |
+| `next.config.*`, `vite.config.*`, `webpack.config.*` | Framework, build targets |
+| `tsconfig.json` / `jsconfig.json` | Target environment, path aliases |
+| `.github/workflows/` | CI commands, test scripts, deployment triggers |
+| `LICENSE` | License name and year |
+| `src/`, `app/`, `lib/`, `server/`, `api/` | App type, entry points, domain structure |
+| `docs/` | Any supplemental documentation to reference |
+| `public/screenshots/` or `docs/screenshots/` | Screenshot files to link |
+| `CONTRIBUTING.md`, `SECURITY.md` | Link to them rather than duplicating |
+| `Makefile` | Common developer commands |
 
-## Input Discovery Workflow
+### When you cannot access the repo
 
-Before writing, inspect the repository when possible.
+If the user pastes only a description or partial files:
+- Ask for `package.json` and `.env.example` at minimum.
+- Mark anything unverified with `TODO`.
+- Do not invent package names, URLs, scripts, or environment variable names.
 
-Read these files first if present:
+### Project type detection
 
-- `package.json`, `pnpm-lock.yaml`, `yarn.lock`, `package-lock.json`
-- `README.md`
-- `LICENSE`
-- `.env.example`
-- `.gitignore`
-- `Dockerfile`, `docker-compose.yml`
-- `next.config.*`, `vite.config.*`, `tsconfig.json`, `tailwind.config.*`
-- `src/`, `app/`, `pages/`, `components/`, `lib/`, `server/`, `api/`
-- `.github/workflows/`
-- `docs/`
-- screenshot or media folders such as `public/screenshots/`
+Identify the project type early. It changes which sections matter most.
 
-Extract facts only from real files. If something is missing, either omit it or mark it as `TODO`, depending on usefulness.
+| Type | Key signals | Priority sections |
+| --- | --- | --- |
+| Web app / SaaS | `next`, `react`, `vite`, `app/` directory | Screenshots, quick start, configuration, deployment |
+| CLI tool | `bin` in package.json, `argparse`, `cobra`, `clap` | Usage examples, flags, install methods |
+| Library / SDK | `main`+`module` exports, `peerDependencies` | API reference, installation, usage snippets |
+| Backend API | `express`, `fastapi`, `gin`, routes directory | API reference, deployment, auth |
+| Monorepo | `packages/`, `apps/`, `turbo.json`, `nx.json` | Structure, per-package links, workspace setup |
+| Data / ML project | notebooks, `requirements.txt`, model files | Dataset, training steps, evaluation |
+| DevTool / script | standalone scripts, no framework | Purpose, usage, requirements |
 
-## README Structure Template
+---
 
-Use this structure when it fits the project. Remove sections that are not relevant.
+## Step 3: Choose README Length
+
+**Full README**: library, serious web app, open-source tool, anything meant for public contributors.
+
+**Compact README**: internal tool, prototype, personal project, or when user explicitly asks for short.
+
+Compact keeps: title, tagline, badges, overview, features, quick start, usage, tech stack, license.
+Compact drops: architecture diagrams, roadmap, API reference, security, detailed deployment.
+
+---
+
+## Step 4: Write the README
+
+### Structure Template
+
+Use this structure. Remove irrelevant sections. Add project-specific sections when the repo warrants them.
 
 ```markdown
 # Project Name
 
-> One strong sentence that explains the project and its value.
+> One strong sentence: what it does and who it helps.
 
 <p align="left">
-  <!-- Badges here -->
+  <!-- Badges -->
 </p>
 
-> Optional live demo or primary CTA.
-
 ---
 
-## 🧭 Quick Links
-
-| Link | Description |
-| --- | --- |
-| 🌐 Live demo | Hosted app or docs |
-| 📦 Repository | Source code |
-| 🐛 Issues | Bug reports and feature requests |
-| 📄 License | License file |
-
----
-
-## 🗂️ Table of Contents
+## Table of Contents
 
 - [Overview](#overview)
 - [Features](#features)
@@ -124,291 +115,315 @@ Use this structure when it fits the project. Remove sections that are not releva
 
 ## Overview
 
-Explain the problem, the solution, and the target users.
+Problem, solution, target audience. Three to five sentences max.
 
 ## Features
 
-- Specific feature with concrete value.
-- Specific feature with concrete value.
-- Specific feature with concrete value.
+- Specific, concrete feature. Not "powerful" or "easy." What does it actually do?
+- Specific, concrete feature.
+- Specific, concrete feature.
 
 ## How It Works
 
-Use a Mermaid diagram when architecture or flow matters.
-
-```mermaid
-flowchart TD
-    A[Input] --> B[Processing]
-    B --> C[Output]
-```
+Mermaid diagram when architecture or data flow is non-obvious. Skip for simple scripts.
 
 ## Repository Structure
 
-```text
-project/
-├── app/
-├── components/
-├── lib/
-└── README.md
-```
+Key directories only. Annotate purpose.
 
 ## Tech Stack
 
-| Layer | Choice |
-| --- | --- |
-| Framework | ... |
-| Language | ... |
-| Styling | ... |
-| Database | ... |
+Table: layer, choice, brief reason if non-obvious.
 
 ## Requirements
 
-- Node.js version
+- Runtime version (Node 20+, Python 3.11+, Go 1.22+)
 - Package manager
-- API keys or optional services
+- Required external services or API keys
 
 ## Installation
 
-```bash
-git clone REPO_URL
-cd PROJECT
-npm install
-npm run dev
-```
+Exact commands from detected package manager and scripts.
 
 ## Configuration
 
-| Variable | Required | Description | Example |
-| --- | --- | --- | --- |
-| `API_KEY` | No | Used for ... | `xxx` |
+Table: variable name, required/optional, description, example value.
+Source from .env.example only.
 
 ## Usage
 
-Show UI usage, CLI usage, API usage, or library usage depending on the project.
+CLI: flags table + examples.
+Web app: screenshots + workflow description.
+Library: code snippets for the main use cases.
+API: see API Reference section.
 
 ## API Reference
 
-Document endpoints, request body, response body, and errors if the project exposes an API.
+Method, endpoint, purpose, request body, response body, errors.
+Use tables for fields. Use code blocks for examples.
 
 ## Testing
 
-```bash
-npm run lint
-npm run typecheck
-npm run test
-npm run build
-```
+Exact commands from package.json scripts or Makefile.
 
 ## Deployment
 
-Add Vercel, Docker, self-hosted, or platform-specific steps.
+Platform-specific steps. Docker, Vercel, Railway, self-hosted.
+Only document platforms that have config files in the repo.
 
 ## Roadmap
 
-- [ ] Useful planned improvement
-- [ ] Useful planned improvement
+- [ ] Concrete planned improvement
+- [ ] Concrete planned improvement
 
 ## Contributing
 
-Give clear contribution steps.
+Step-by-step. Fork, branch naming, PR process, code style.
+Link to CONTRIBUTING.md if it exists rather than duplicating.
 
 ## Security
 
-Explain how to report vulnerabilities and any security posture.
+Honest trust boundary statement. How to report vulnerabilities.
+Link to SECURITY.md if it exists.
 
 ## License
 
-MIT, Apache-2.0, GPL, proprietary, or TODO if missing.
+Name only. Link to LICENSE file.
 ```
 
-## Badge Rules
+---
 
-Badges should be real, useful, and not overloaded.
+## Badges
 
-Good badge categories:
+Use only badges for things that are real and verifiable.
 
-- Live demo
-- License
-- Version
-- Stars
-- Issues
-- Pull requests
-- Last commit
-- Language
-- Framework
-- Build status, only if a workflow exists
-- Package version, only if published
+### Badge URL patterns for GitHub-hosted projects
 
-Do not add badges for things that are not true or not verifiable.
-
-Example badge block:
+Replace `OWNER` and `REPO` with actual values from the repo.
 
 ```html
-<p align="left">
-  <a href="LIVE_DEMO_URL"><img alt="Live Demo" src="https://img.shields.io/badge/Live%20Demo-online-22c55e?style=for-the-badge" /></a>
-  <a href="LICENSE_URL"><img alt="License" src="https://img.shields.io/badge/License-MIT-22c55e?style=for-the-badge" /></a>
-  <a href="REPO_URL"><img alt="Stars" src="https://img.shields.io/github/stars/OWNER/REPO?style=for-the-badge&color=facc15" /></a>
-</p>
+<!-- Live demo (only if a URL is known) -->
+<a href="DEMO_URL"><img alt="Live Demo" src="https://img.shields.io/badge/demo-online-22c55e?style=for-the-badge" /></a>
+
+<!-- License (only if LICENSE file exists) -->
+<a href="./LICENSE"><img alt="License" src="https://img.shields.io/github/license/OWNER/REPO?style=for-the-badge" /></a>
+
+<!-- Stars -->
+<a href="https://github.com/OWNER/REPO/stargazers"><img alt="Stars" src="https://img.shields.io/github/stars/OWNER/REPO?style=for-the-badge&color=facc15" /></a>
+
+<!-- Last commit -->
+<img alt="Last commit" src="https://img.shields.io/github/last-commit/OWNER/REPO?style=for-the-badge" />
+
+<!-- npm version (only if published) -->
+<a href="https://npmjs.com/package/PACKAGE_NAME"><img alt="npm" src="https://img.shields.io/npm/v/PACKAGE_NAME?style=for-the-badge&color=cb3837" /></a>
+
+<!-- CI status (only if .github/workflows/ exists) -->
+<a href="https://github.com/OWNER/REPO/actions"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/OWNER/REPO/WORKFLOW_FILE?style=for-the-badge" /></a>
+
+<!-- Language -->
+<img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.x-3178c6?style=for-the-badge&logo=typescript&logoColor=white" />
 ```
 
-## Tone Patterns
+**Do not add**: badges for things not in the repo, fake test coverage numbers, fake download counts, or placeholder shields that will render as errors.
 
-Use strong one-liners:
+---
 
-- `Turn messy repository context into clean, usable documentation.`
-- `Scan fast, fix faster.`
-- `Built for maintainers who want clarity before release day.`
-- `No signup. No noise. Just the report.`
-- `A clean developer experience for a messy developer problem.`
+## Section-Specific Guidance
 
-Avoid weak lines:
+### Tagline
 
-- `This is a powerful and innovative tool.`
-- `This project revolutionizes everything.`
-- `The best solution for everyone.`
-- `A cutting-edge platform leveraging modern technologies.`
+One sentence. Subject + verb + outcome. No adjectives that don't carry information.
 
-## Architecture Section Rules
+Good: `Turn repository context into production-ready documentation.`
+Good: `A zero-config CLI for auditing npm dependency licenses.`
+Bad: `A powerful and innovative tool for modern developers.`
+Bad: `The best way to manage your projects.`
 
-Add architecture only if it helps.
+### Features list
 
-Use `flowchart TD` for app/data flow.
-Use `sequenceDiagram` for request lifecycle.
-Use simple labels, not implementation essays.
+Each bullet: one sentence, present tense, describes what the tool does, not what it "supports" abstractly.
 
-Example:
+Good: `Scans all route handlers and generates an OpenAPI spec in under two seconds.`
+Bad: `Powerful API documentation support.`
 
-```mermaid
+### How It Works / Architecture
+
+Use Mermaid when there are multiple components, a non-obvious data flow, or a request lifecycle worth showing.
+
+Skip Mermaid for: single-file scripts, simple CRUD apps with no interesting flow, CLI tools where usage examples communicate better.
+
+For app/data flow:
+```
+flowchart TD
+    A[Input] --> B[Processing step]
+    B --> C[Output]
+```
+
+For request lifecycle:
+```
 sequenceDiagram
     participant U as User
-    participant W as Web UI
-    participant A as API Route
-    participant S as Service Layer
-    participant R as Result
-
-    U->>W: Submit input
-    W->>A: POST request
-    A->>S: Validate and process
-    S-->>A: Structured result
-    A-->>W: JSON response
-    W-->>U: Render output
+    participant A as API
+    participant D as Database
+    U->>A: POST /items
+    A->>D: Insert record
+    D-->>A: ID
+    A-->>U: 201 Created
 ```
 
-## Repository Structure Rules
+Keep labels short. Do not describe implementation details in the diagram.
 
-Do not dump every file. Show the important shape.
+### Repository Structure
 
-Include comments that explain purpose:
+Show shape, not every file. Aim for 8 to 15 lines. Annotate purpose.
 
 ```text
 project/
-├── app/                 # Routes, layouts, and server endpoints
-├── components/          # Reusable UI components
-├── lib/                 # Core logic, helpers, and types
-├── public/              # Static assets and screenshots
-├── scripts/             # Automation scripts
-└── README.md            # Project documentation
+├── app/            # Next.js routes and layouts
+├── components/     # Shared UI components
+├── lib/            # Core logic and utilities
+├── scripts/        # One-off automation
+├── public/         # Static assets
+└── tests/          # Unit and integration tests
 ```
 
-## API Documentation Rules
+For monorepos, show top level and one level into `packages/` or `apps/`.
 
-If an API exists, include:
+### Configuration table
 
-- Method and endpoint.
-- Purpose.
-- Request body.
-- Successful response shape.
-- Error response shape.
-- Stable error codes.
-- Example request.
+Source every variable from `.env.example` or source code `process.env` / `os.environ` usage.
 
-Use concise tables for fields and errors.
+| Variable | Required | Default | Description |
+| --- | --- | --- | --- |
+| `DATABASE_URL` | Yes | none | PostgreSQL connection string |
+| `PORT` | No | `3000` | HTTP server port |
 
-## Screenshots Rules
+Never invent variable names.
 
-Only include screenshot links if files exist.
+### API Reference
 
-Good:
+Document only if the project exposes a public API.
+
+For each endpoint:
+- Method and path
+- One-line purpose
+- Request body fields (table)
+- Response shape (code block)
+- Error codes (table)
+
+```http
+POST /api/analyze
+
+Body:
+{ "url": "https://..." }
+
+Response 200:
+{ "score": 82, "issues": [...] }
+
+Errors:
+400 – Missing or invalid url
+429 – Rate limit exceeded
+```
+
+### Screenshots
+
+Link only if files exist in the repo.
 
 ```markdown
-![Dashboard screenshot](public/screenshots/dashboard.png)
+![Main dashboard](public/screenshots/dashboard.png)
 ```
 
-If screenshots are missing but valuable:
+If screenshots would add value but are missing:
+```markdown
+> TODO: Add screenshots showing the main workflow and result view.
+```
+
+### Security section
+
+State only what is actually true about the project.
+
+Honest claims: read-only, local-only, no persistence, input validated, secrets masked.
+Do not claim: perfect security, full compliance, no false positives, complete coverage.
+
+For vulnerability reporting, standard template:
 
 ```markdown
-> TODO: Add screenshots for the landing page, main workflow, and result view.
+To report a security vulnerability, please open a [GitHub Security Advisory](https://github.com/OWNER/REPO/security/advisories/new) rather than a public issue.
 ```
 
-## Security and Trust Rules
+---
 
-For security tools, devtools, scanners, auth tools, data tools, or AI tools, include a clear trust section.
+## Writing Style
 
-Mention only true guarantees:
+**Avoid:**
+- Em dashes. Use commas, colons, or new sentences.
+- "Powerful", "innovative", "cutting-edge", "seamless", "robust", "intuitive"
+- Passive voice where active is cleaner
+- Repeating the project name in every sentence
+- Bullet points for everything, including things that read better as prose
 
-- Read-only behavior.
-- No persistence.
-- Local-only processing.
-- Secret masking.
-- Optional authentication.
-- Rate limits.
-- Privacy boundaries.
+**Prefer:**
+- Short, declarative sentences
+- Tables for structured data (config, API fields, tech stack)
+- Code blocks for everything that should be copy-pasted
+- Concrete numbers and examples over vague claims
+- Present tense for features ("generates", not "can generate")
 
-Never claim:
+---
 
-- Perfect security.
-- Complete vulnerability detection.
-- No false positives.
-- Compliance certification unless verified.
+## Improving an Existing README
 
-## TODO Rules
+When rewriting rather than creating:
 
-Use TODO notes when the README references something that should exist but is missing:
+1. Extract all accurate facts from the existing README first. Do not discard them.
+2. Identify what is missing, wrong, or generic.
+3. Keep the project's existing branding and voice if it's intentional.
+4. Fix broken image paths or mark them TODO.
+5. Remove duplicated sections, filler copy, and unsupported claims.
+6. Upgrade structure without erasing the original maintainer's intent.
+
+---
+
+## TODO Conventions
+
+Use `TODO` when something should exist but is missing or unknown:
 
 ```markdown
-> TODO: Add a top-level `LICENSE` file before the first public release.
+> TODO: Add a `LICENSE` file before first public release.
+> TODO: Confirm the correct demo URL.
+> TODO: Add screenshots for the main workflow.
 ```
 
-Keep TODOs useful and limited.
+Keep TODOs actionable and limited. Do not litter the README with TODOs for things that are simply optional.
 
-## Output Requirements
+---
 
-When asked to generate a README:
+## Pre-Delivery Checklist
 
-1. Return a complete `README.md`.
-2. Preserve accurate facts from the repo.
-3. Add `TODO` only for missing files or unknown values.
-4. Use Markdown that renders cleanly on GitHub.
-5. Include commands that match the actual package manager and scripts.
-6. Include environment variables only if discovered or requested.
-7. Keep the final README cohesive, not a collection of fragments.
+Before returning the README, verify every item:
 
-When asked to improve an existing README:
+**Accuracy**
+- [ ] Title matches the repository name
+- [ ] All package names, script names, and command names come from actual files
+- [ ] Environment variables come from `.env.example` or source code, not invented
+- [ ] Screenshot paths point to files that exist (or are marked TODO)
+- [ ] Badge URLs contain real `OWNER/REPO` values, not placeholders
+- [ ] License name matches the `LICENSE` file
 
-1. Keep accurate existing information.
-2. Remove duplicated or noisy sections.
-3. Upgrade structure, headings, tables, examples, and CTA.
-4. Fix broken image paths or clearly mark them as TODO.
-5. Replace generic copy with repo-specific copy.
-6. Keep the project’s branding and voice.
+**Quality**
+- [ ] Tagline is one sentence, specific, no empty adjectives
+- [ ] Each feature bullet describes a concrete behavior
+- [ ] Code blocks are copy-pasteable and use the correct language tag
+- [ ] Mermaid diagrams use valid syntax
+- [ ] Table of contents links match actual heading anchors
 
-When asked for a compact README:
+**Completeness**
+- [ ] Every section referenced in the table of contents exists
+- [ ] Configuration section covers all variables in `.env.example`
+- [ ] Install and run commands match detected package manager and scripts
 
-1. Keep only title, tagline, badges, overview, features, quick start, usage, tech stack, license.
-2. Avoid long architecture, roadmap, and API sections unless essential.
-
-## Final Self-Check
-
-Before returning the README, verify:
-
-- The title matches the repository.
-- The tagline is specific and useful.
-- Badges point to real project URLs.
-- Install commands match detected scripts.
-- Configuration variables match `.env.example` or source usage.
-- No fake screenshots, fake demos, fake tests, or fake package names.
-- Code fences have correct languages.
-- Mermaid diagrams are valid enough to render.
-- The table of contents matches actual headings.
-- Security, license, and contribution sections do not overclaim.
-- No em dashes.
+**Style**
+- [ ] No em dashes
+- [ ] No fake or unverifiable badges
+- [ ] No generic marketing copy
+- [ ] No invented demo URLs, test coverage numbers, or CI links
